@@ -1,4 +1,4 @@
-from piece_list import PieceList
+ from piece_list import PieceList
 from move import Move
 from collections import deque
 
@@ -13,13 +13,13 @@ class Board:
     WHITE_INDEX = 0
     BLACK_INDEX = 1
 
-    WHITE_CASTLE_KING_SIDE_MASK = 0b1111111111111110
-    WHITE_CASTLE_QUEEN_SIDE_MASK = 0b1111111111111101
-    BLACK_CASTLE_KING_SIDE_MASK = 0b1111111111111011
-    BLACK_CASTLE_QUEEN_SIDE_MASK = 0b1111111111110111
+    _WHITE_CASTLE_KING_SIDE_MASK = 0b1111111111111110
+    _WHITE_CASTLE_QUEEN_SIDE_MASK = 0b1111111111111101
+    _BLACK_CASTLE_KING_SIDE_MASK = 0b1111111111111011
+    _BLACK_CASTLE_QUEEN_SIDE_MASK = 0b1111111111110111
 
-    WHITE_CASTLE_MASK = WHITE_CASTLE_KING_SIDE_MASK & WHITE_CASTLE_QUEEN_SIDE_MASK
-    BLACK_CASTLE_MASK = BLACK_CASTLE_KING_SIDE_MASK & BLACK_CASTLE_QUEEN_SIDE_MASK
+    _WHITE_CASTLE_MASK = _WHITE_CASTLE_KING_SIDE_MASK & _WHITE_CASTLE_QUEEN_SIDE_MASK
+    _BLACK_CASTLE_MASK = _BLACK_CASTLE_KING_SIDE_MASK & _BLACK_CASTLE_QUEEN_SIDE_MASK
 
     # Bits 0 - 3 store white and black king side / queen side castling legality
     # Bits 4 - 7 store file of ep square(starting at 1, so 0 = no ep square)
@@ -27,7 +27,7 @@ class Board:
     # Bits 14 - ... fifty move counter
 
     __slots__ = {'squares', 'white_to_move', 'colour_to_move', 'opponent_colour', 'colour_to_move_index',
-                 'game_state_history', 'current_game_state', 'ply_count', 'fifty_move_counter', 'zobrist_key',
+                 '_game_state_history', 'current_game_state', 'ply_count', 'fifty_move_counter', 'zobrist_key',
                  'repetition_position_history', 'king_square', 'rooks', 'bishops', 'queens', 'knights', 'pawns',
                  'all_piece_lists'}
 
@@ -43,7 +43,7 @@ class Board:
         self.squares = [0] * 64  # Stores piece code for each square on the board
         self.king_square = [0] * 2  # Index of square of white and black king
 
-        self.game_state_history = deque()
+        self._game_state_history = deque()
         self.repetition_position_history = deque()
 
         self.zobrist_key = 0
@@ -107,7 +107,7 @@ class Board:
         # Move pieces in piece lists
         if move_piece_type == piece.KING:
             self.king_square[self.colour_to_move_index] = move_to
-            new_castle_state &= Board.WHITE_CASTLE_MASK if self.white_to_move else Board.BLACK_CASTLE_MASK
+            new_castle_state &= Board._WHITE_CASTLE_MASK if self.white_to_move else Board._BLACK_CASTLE_MASK
         else:
             self.get_piece_list(move_piece_type, self.colour_to_move_index).move_piece(move_from, move_to)
 
@@ -164,13 +164,13 @@ class Board:
         # Piece moving to/from rook square removes castling right for that side
         if original_castle_state != 0:
             if move_to == board_representation.H1 or move_from == board_representation.H1:
-                new_castle_state &= Board.WHITE_CASTLE_KING_SIDE_MASK
+                new_castle_state &= Board._WHITE_CASTLE_KING_SIDE_MASK
             elif move_to == board_representation.A1 or move_from == board_representation.A1:
-                new_castle_state &= Board.WHITE_CASTLE_QUEEN_SIDE_MASK
+                new_castle_state &= Board._WHITE_CASTLE_QUEEN_SIDE_MASK
             if move_to == board_representation.H8 or move_from == board_representation.H8:
-                new_castle_state &= Board.BLACK_CASTLE_KING_SIDE_MASK
+                new_castle_state &= Board._BLACK_CASTLE_KING_SIDE_MASK
             elif move_to == board_representation.A8 or move_from == board_representation.A8:
-                new_castle_state &= Board.BLACK_CASTLE_QUEEN_SIDE_MASK
+                new_castle_state &= Board._BLACK_CASTLE_QUEEN_SIDE_MASK
 
         # Update zobrist key with new piece position and side to move
         self.zobrist_key ^= zobrist.side_to_move
@@ -187,7 +187,7 @@ class Board:
 
         self.current_game_state |= new_castle_state
         self.current_game_state |= self.fifty_move_counter << 14
-        self.game_state_history.append(self.current_game_state)
+        self._game_state_history.append(self.current_game_state)
 
         # Change side to move
         self.white_to_move = not self.white_to_move
@@ -275,8 +275,8 @@ class Board:
             self.zobrist_key ^= zobrist.pieces_array[piece.ROOK, self.colour_to_move_index, castling_rook_from_index]
             self.zobrist_key ^= zobrist.pieces_array[piece.ROOK, self.colour_to_move_index, castling_rook_to_index]
 
-        self.game_state_history.pop()  # Removes current state from history
-        self.current_game_state = self.game_state_history[-1]  # Sets current state to previous state in history
+        self._game_state_history.pop()  # Removes current state from history
+        self.current_game_state = self._game_state_history[-1]  # Sets current state to previous state in history
 
         self.fifty_move_counter = (self.current_game_state & 4294950912) >> 14
         new_en_passant_file = (self.current_game_state >> 4) & 15
@@ -337,7 +337,7 @@ class Board:
 
         ep_state = loaded_position.ep_file << 4
         initial_game_state = (white_castle | black_castle | ep_state)
-        self.game_state_history.append(initial_game_state)
+        self._game_state_history.append(initial_game_state)
         self.current_game_state = initial_game_state
         self.ply_count = loaded_position.ply_count
 
