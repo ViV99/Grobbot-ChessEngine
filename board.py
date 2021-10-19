@@ -39,7 +39,7 @@ class Board:
         self.current_game_state = 0
         self.init()
 
-    def init(self):
+    def init(self) -> None:
         self.squares = [0] * 64  # Stores piece code for each square on the board
         self.king_square = [0] * 2  # Index of square of white and black king
 
