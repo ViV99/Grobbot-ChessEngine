@@ -1,4 +1,4 @@
- from piece_list import PieceList
+from piece_list import PieceList
 from move import Move
 from collections import deque
 
