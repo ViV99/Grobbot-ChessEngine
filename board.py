@@ -32,14 +32,16 @@ class Board:
                  'all_piece_lists'}
 
     def __init__(self):
-        self.squares = [0] * 64  # Stores piece code for each square on the board
-        self.king_square = [0] * 2  # Index of square of white and black king
-
-        self.current_game_state = 0
         self.white_to_move = True
         self.colour_to_move = 0
         self.colour_to_move_index = 0
         self.opponent_colour = 0
+        self.current_game_state = 0
+        self.init()
+
+    def init(self):
+        self.squares = [0] * 64  # Stores piece code for each square on the board
+        self.king_square = [0] * 2  # Index of square of white and black king
 
         self.game_state_history = deque()
         self.repetition_position_history = deque()
@@ -295,6 +297,7 @@ class Board:
         self.load_position(fen_utility.START_FEN)
 
     def load_position(self, fen: str) -> None:
+        self.init()
         loaded_position = fen_utility.position_from_fen(fen)
 
         # Load pieces into board array and piece lists
