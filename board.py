@@ -37,9 +37,9 @@ class Board:
         self.colour_to_move_index = 0
         self.opponent_colour = 0
         self.current_game_state = 0
-        self.init()
+        self._init()
 
-    def init(self) -> None:
+    def _init(self) -> None:
         self.squares = [0] * 64  # Stores piece code for each square on the board
         self.king_square = [0] * 2  # Index of square of white and black king
 
@@ -74,7 +74,7 @@ class Board:
             self.rooks[self.BLACK_INDEX],
             self.queens[self.BLACK_INDEX]]
 
-    def get_piece_list(self, piece_type: int, colour_index: int) -> PieceList:
+    def _get_piece_list(self, piece_type: int, colour_index: int) -> PieceList:
         return self.all_piece_lists[colour_index * 8 + piece_type]
 
     # The in_search parameter controls whether this move should be recorded in the game history
@@ -102,14 +102,14 @@ class Board:
 
         if captured_piece_type != 0 and not is_en_passant:
             self.zobrist_key ^= zobrist.pieces_array[captured_piece_type, opponent_colour_index, move_to]
-            self.get_piece_list(captured_piece_type, opponent_colour_index).remove_piece_at_square(move_to)
+            self._get_piece_list(captured_piece_type, opponent_colour_index).remove_piece_at_square(move_to)
 
         # Move pieces in piece lists
         if move_piece_type == piece.KING:
             self.king_square[self.colour_to_move_index] = move_to
             new_castle_state &= Board._WHITE_CASTLE_MASK if self.white_to_move else Board._BLACK_CASTLE_MASK
         else:
-            self.get_piece_list(move_piece_type, self.colour_to_move_index).move_piece(move_from, move_to)
+            self._get_piece_list(move_piece_type, self.colour_to_move_index).move_piece(move_from, move_to)
 
         piece_on_target_square = move_piece
 
@@ -235,13 +235,13 @@ class Board:
         # Ignore ep captures, handled later
         if captured_piece_type != 0 and not is_en_passant:
             self.zobrist_key ^= zobrist.pieces_array[captured_piece_type, opponent_colour_index, move.target_square]
-            self.get_piece_list(captured_piece_type, opponent_colour_index).add_piece_at_square(move.target_square)
+            self._get_piece_list(captured_piece_type, opponent_colour_index).add_piece_at_square(move.target_square)
 
         # Update king index
         if moved_piece_type == piece.KING:
             self.king_square[self.colour_to_move_index] = move.start_square
         elif not move.is_promotion:
-            self.get_piece_list(moved_piece_type, self.colour_to_move_index).move_piece(move.target_square,
+            self._get_piece_list(moved_piece_type, self.colour_to_move_index).move_piece(move.target_square,
                                                                                         move.start_square)
 
         # Put back moved piece
@@ -297,7 +297,7 @@ class Board:
         self.load_position(fen_utility.START_FEN)
 
     def load_position(self, fen: str) -> None:
-        self.init()
+        self._init()
         loaded_position = fen_utility.position_from_fen(fen)
 
         # Load pieces into board array and piece lists
