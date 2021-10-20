@@ -133,7 +133,7 @@ class Board:
             piece_on_target_square = promote_type | self.colour_to_move
             self.pawns[self.colour_to_move_index].remove_piece_at_square(move_to)
         else:
-            # Handle en-passant an castling
+            # Handle en-passant and castling
             if move_flag == Move.Flag.CASTLING:
                 king_side = move_to == board_representation.G1 or move_to == board_representation.G8
                 castling_rook_from_index = move_to + 1 if king_side else move_to - 2
@@ -146,7 +146,7 @@ class Board:
                 self.zobrist_key ^= zobrist.pieces_array[piece.ROOK, self.colour_to_move_index, castling_rook_to_index]
             elif move_flag == Move.Flag.EN_PASSANT_CAPTURE:
                 ep_pawn_square = move_to + (-8 if self.colour_to_move == piece.WHITE else 8)
-                self.current_game_state |= self.squares[ep_pawn_square] << 8  # Add pawn as capture type
+                self.current_game_state |= self.squares[ep_pawn_square] << 8  # Add pawn as captured type
                 self.squares[ep_pawn_square] = 0  # Clear empty capture square
                 self.pawns[opponent_colour_index].remove_piece_at_square(ep_pawn_square)
                 self.zobrist_key ^= zobrist.pieces_array[piece.PAWN, opponent_colour_index, ep_pawn_square]
