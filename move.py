@@ -24,17 +24,16 @@ class Move:
     _TARGET_SQUARE_MASK = 0b0000111111000000
     _FLAG_MASK = 0b1111000000000000
 
-    def __init__(self, move_value: int):
-        self._move_value = move_value
-
-    def __init__(self, start_square: int, target_square: int):
-        self._move_value = start_square | target_square << 6
-
-    def __init__(self, start_square: int, target_square: int, flag: int):
-        self._move_value = start_square | target_square << 6 | flag << 12
+    def __init__(self, move_value: int = None, start_square: int = None, target_square: int = None, flag: int = None):
+        if start_square is None:
+            self._move_value = move_value
+        elif flag is None:
+            self._move_value = start_square | target_square << 6
+        else:
+            self._move_value = start_square | target_square << 6 | flag << 12
 
     @property
-    def value(self):
+    def value(self) -> int:
         return self._move_value
 
     @property

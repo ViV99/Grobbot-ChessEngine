@@ -3,7 +3,6 @@ from move import Move
 from collections import deque
 
 import fen_utility
-
 import board_representation
 import piece
 import zobrist
