@@ -73,6 +73,31 @@ class Board:
             self.rooks[self.BLACK_INDEX],
             self.queens[self.BLACK_INDEX]]
 
+    # Calculate zobrist key from current board position. This should only be used after setting board from fen;
+    # during search the key should be updated incrementally
+    def calculate_zobrist_key(self) -> int:
+        zobrist_key = 0
+
+        for square_index in range(64):
+            if self.squares[square_index] != 0:
+                piece_type = piece.piece_type(self.squares[square_index])
+                piece_colour = piece.piece_colour(self.squares[square_index])
+
+                zobrist_key ^= zobrist.pieces_array[piece_type][Board.WHITE_INDEX
+                                                                if piece_colour == piece.WHITE
+                                                                else Board.BLACK_INDEX][square_index]
+
+        ep_index = (self.current_game_state >> 4) & 15
+        if ep_index != -1:
+            zobrist_key ^= zobrist.en_passant_file[ep_index]
+
+        if self.colour_to_move == piece.BLACK:
+            zobrist_key ^= zobrist.side_to_move
+
+        zobrist_key ^= zobrist.castling_rights[self.current_game_state & 0b1111]
+
+        return zobrist_key
+
     def _get_piece_list(self, piece_type: int, colour_index: int) -> PieceList:
         return self.all_piece_lists[colour_index * 8 + piece_type]
 
@@ -341,4 +366,4 @@ class Board:
         self.ply_count = loaded_position.ply_count
 
         # Initialize zobrist key
-        self.zobrist_key = zobrist.calculate_zobrist_key(self)
+        self.zobrist_key = self.calculate_zobrist_key()

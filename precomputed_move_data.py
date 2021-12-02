@@ -8,33 +8,33 @@ from board import Board
 direction_offsets = [8, -8, -1, 1, 7, -7, 9, -9]
 
 # Stores number of moves available in each of the 8 directions for every square on the board
-# Order of directions is: N, S, W, E, NW, SE, NE, SW
-num_squares_to_edge = [[0] * 8] * 64
+# Order of directions is: N 🡱, S 🡳, W 🡰, E 🡲, NW 🡴, SE 🡶, NE 🡵, SW 🡷
+num_squares_to_edge = [[0] * 8 for i in range(64)]
 
 # Stores array of indices for each square a knight can go to from any square on the board
 # knight_moves[0] is equal to {10, 17}, meaning a knight on a1 can jump to c2 and b3
-knight_moves = [[0] * 8] * 64
-king_moves = [[0] * 8] * 64
+knight_moves = [[0] * 8 for i in range(64)]
+king_moves = [[0] * 8 for i in range(64)]
 
 # Pawn attack directions for white and black (NW NE SW SE)
 pawn_attack_directions = [[4, 6], [7, 5]]
 
 direction_lookup = [0] * 127
-pawn_attacks_white = [[0] * 8] * 64
-pawn_attacks_black = [[0] * 8] * 64
+pawn_attacks_white = [[0] * 8 for i in range(64)]
+pawn_attacks_black = [[0] * 8 for i in range(64)]
 
 king_attack_bitboards = [0] * 64
 knight_attack_bitboards = [0] * 64
-pawn_attack_bitboards = [[0] * 2] * 64
+pawn_attack_bitboards = [[0] * 2 for i in range(64)]
 
 rook_moves = [0] * 64
 bishop_moves = [0] * 64
 queen_moves = [0] * 64
 
 # Manhattan distance - how many moves for a rook to get from square to square
-orthogonal_distance = [[0] * 64] * 64
+orthogonal_distance = [[0] * 64 for i in range(64)]
 # Chebyshev distance - how many moves for a king to get from square to square
-king_distance = [[0] * 64] * 64
+king_distance = [[0] * 64 for i in range(64)]
 center_manhattan_distance = [0] * 64
 
 

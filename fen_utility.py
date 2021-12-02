@@ -1,6 +1,6 @@
 import piece
 import board_representation
-from board import Board
+
 
 START_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
@@ -66,7 +66,7 @@ def position_from_fen(fen: str) -> LoadedPositionInfo:
     return loaded_position_info
 
 
-def fen_from_position(board: Board) -> str:
+def fen_from_position(board) -> str:
     fen = ''
     for rank in range(7, -1, -1):
         num_empty_files = 0

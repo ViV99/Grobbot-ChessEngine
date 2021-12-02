@@ -19,11 +19,10 @@ class MoveGenerator:
 
     def __init__(self):
         self.promotions_to_generate = MoveGenerator.PromotionMode.ALL
-        self._init()
 
     # Generates list of legal moves in current position
     # Quiet moves (non captures) can optionally be excluded
-    def generate_moves(self, board: Board, include_quiet_moves=True) -> list:
+    def generate_moves(self, board: Board, include_quiet_moves=True) -> list[Move]:
         self._board = board
         self._gen_quiets = include_quiet_moves
         self._init()
@@ -130,7 +129,6 @@ class MoveGenerator:
         self._pins_exist = False
         self._check_ray_bitmask = 0
         self._pin_ray_bitmask = 0
-
         self._white_to_move = self._board.colour_to_move == piece.WHITE
         self._friendly_colour = self._board.colour_to_move
         self._friendly_colour_index = Board.WHITE_INDEX if self._board.white_to_move else Board.BLACK_INDEX
@@ -405,14 +403,14 @@ class MoveGenerator:
 
         # Knight attacks
         opponent_knights = self._board.knights[self._opponent_colour_index]
-        opponent_knight_attacks = 0
+        self._opponent_knight_attacks = 0
         is_knight_check = False
 
         for knight_index in range(opponent_knights.count):
             start_square = opponent_knights[knight_index]
-            opponent_knight_attacks |= precomputed_move_data.knight_attack_bitboards[start_square]
+            self._opponent_knight_attacks |= precomputed_move_data.knight_attack_bitboards[start_square]
 
-            if not is_knight_check and self.contains_square(opponent_knight_attacks, self._friendly_king_square):
+            if not is_knight_check and self.contains_square(self._opponent_knight_attacks, self._friendly_king_square):
                 is_knight_check = True
                 self._in_double_check = self._in_check  # If already in check, then this is double check
                 self._in_check = True
