@@ -68,7 +68,7 @@ class MoveGenerator:
         # Update board to reflect en-passant capture
         self._board.squares[target_square] = self._board.squares[start_square]
         self._board.squares[start_square] = piece.NONE
-        self._board.squares[self._board.squares] = piece.NONE
+        self._board.squares[ep_captured_pawn_square] = piece.NONE
 
         in_check_after_ep_capture = False
         if self._is_square_attacked_after_ep_capture(ep_captured_pawn_square, start_square):
@@ -334,7 +334,7 @@ class MoveGenerator:
             self._update_sliding_attack_piece(enemy_queens[i], 0, 8)
 
         enemy_bishops = self._board.bishops[self._opponent_colour_index]
-        for i in range(enemy_rooks.count):
+        for i in range(enemy_bishops.count):
             self._update_sliding_attack_piece(enemy_bishops[i], 4, 8)
 
     def _update_sliding_attack_piece(self, start_square: int, start_dir_index: int, end_dir_index: int) -> None:
@@ -436,5 +436,5 @@ class MoveGenerator:
 
         self._opponent_attack_map_no_pawns = self._opponent_sliding_attack_map \
                                              | self._opponent_knight_attacks \
-                                             | precomputed_move_data.knight_attack_bitboards[enemy_king_square]
+                                             | precomputed_move_data.king_attack_bitboards[enemy_king_square]
         self.opponent_attack_map = self._opponent_attack_map_no_pawns | self.opponent_pawn_attack_map

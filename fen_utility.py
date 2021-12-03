@@ -24,7 +24,6 @@ class LoadedPositionInfo:
 
 
 def position_from_fen(fen: str) -> LoadedPositionInfo:
-
     loaded_position_info = LoadedPositionInfo()
     sections = fen.split(' ')
 
