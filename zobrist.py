@@ -6,7 +6,7 @@ SEED = 2361912
 RANDOM_NUMBERS_FILE_NAME = "RandomNumbers.txt"
 
 # piece type, colour, square index
-pieces_array = [[[0] * 64] * 2] * 8
+pieces_array = [[[0] * 64 for _ in range(2)] for __ in range(8)]
 
 castling_rights = [0] * 16
 

@@ -125,13 +125,13 @@ class Board:
         self.current_game_state |= captured_piece_type << 8
 
         if captured_piece_type != 0 and not is_en_passant:
-            self.zobrist_key ^= zobrist.pieces_array[captured_piece_type, opponent_colour_index, move_to]
+            self.zobrist_key ^= zobrist.pieces_array[captured_piece_type][opponent_colour_index][move_to]
             self._get_piece_list(captured_piece_type, opponent_colour_index).remove_piece_at_square(move_to)
 
         # Move pieces in piece lists
         if move_piece_type == piece.KING:
             self.king_square[self.colour_to_move_index] = move_to
-            new_castle_state &= Board._WHITE_CASTLE_MASK if self.white_to_move else Board._BLACK_CASTLE_MASK
+            new_castle_state &= (Board._WHITE_CASTLE_MASK if self.white_to_move else Board._BLACK_CASTLE_MASK)
         else:
             self._get_piece_list(move_piece_type, self.colour_to_move_index).move_piece(move_from, move_to)
 
@@ -166,14 +166,14 @@ class Board:
                 self.squares[castling_rook_from_index] = piece.NONE
                 self.squares[castling_rook_to_index] = piece.ROOK | self.colour_to_move
                 self.rooks[self.colour_to_move_index].move_piece(castling_rook_from_index, castling_rook_to_index)
-                self.zobrist_key ^= zobrist.pieces_array[piece.ROOK, self.colour_to_move_index, castling_rook_from_index]
-                self.zobrist_key ^= zobrist.pieces_array[piece.ROOK, self.colour_to_move_index, castling_rook_to_index]
+                self.zobrist_key ^= zobrist.pieces_array[piece.ROOK][self.colour_to_move_index][castling_rook_from_index]
+                self.zobrist_key ^= zobrist.pieces_array[piece.ROOK][self.colour_to_move_index][castling_rook_to_index]
             elif move_flag == Move.Flag.EN_PASSANT_CAPTURE:
                 ep_pawn_square = move_to + (-8 if self.colour_to_move == piece.WHITE else 8)
                 self.current_game_state |= self.squares[ep_pawn_square] << 8  # Add pawn as captured type
                 self.squares[ep_pawn_square] = 0  # Clear empty capture square
                 self.pawns[opponent_colour_index].remove_piece_at_square(ep_pawn_square)
-                self.zobrist_key ^= zobrist.pieces_array[piece.PAWN, opponent_colour_index, ep_pawn_square]
+                self.zobrist_key ^= zobrist.pieces_array[piece.PAWN][opponent_colour_index][ep_pawn_square]
 
         # Update the board representation
         self.squares[move_to] = piece_on_target_square
@@ -198,9 +198,8 @@ class Board:
 
         # Update zobrist key with new piece position and side to move
         self.zobrist_key ^= zobrist.side_to_move
-        self.zobrist_key ^= zobrist.pieces_array[move_piece_type, self.colour_to_move_index, move_from]
-        self.zobrist_key ^= zobrist.pieces_array[
-            piece.piece_type(piece_on_target_square), self.colour_to_move_index, move_to]
+        self.zobrist_key ^= zobrist.pieces_array[move_piece_type][self.colour_to_move_index][move_from]
+        self.zobrist_key ^= zobrist.pieces_array[piece.piece_type(piece_on_target_square)][self.colour_to_move_index][move_to]
 
         if old_en_passant_file != 0:
             self.zobrist_key ^= zobrist.en_passant_file[old_en_passant_file]
@@ -230,7 +229,7 @@ class Board:
 
     # Undo a move previously made on the board
     def unmake_move(self, move: Move, in_search=False) -> None:
-        # opponentColour = ColourToMove;
+        # opponentColour = ColourToMove
         opponent_colour_index = self.colour_to_move_index
         self.colour_to_move = self.opponent_colour  # side who made the move we are undoing
         self.opponent_colour = piece.BLACK if self.opponent_colour == piece.WHITE else piece.WHITE
@@ -239,7 +238,7 @@ class Board:
 
         original_castle_state = self.current_game_state & 0b1111
 
-        captured_piece_type = (self.current_game_state >> 8) & 63
+        captured_piece_type = ((self.current_game_state >> 8) & 63)
         captured_piece = 0 if captured_piece_type == 0 else captured_piece_type | self.opponent_colour
 
         is_en_passant = move.move_flag == Move.Flag.EN_PASSANT_CAPTURE
@@ -249,8 +248,8 @@ class Board:
 
         # Update zobrist key with new piece position and side to move
         self.zobrist_key ^= zobrist.side_to_move
-        self.zobrist_key ^= zobrist.pieces_array[moved_piece_type, self.colour_to_move_index, move.start_square]  # Add piece back to square it moved from
-        self.zobrist_key ^= zobrist.pieces_array[to_square_piece_type, self.colour_to_move_index, move.target_square]  # Remove piece from square it moved to
+        self.zobrist_key ^= zobrist.pieces_array[moved_piece_type][self.colour_to_move_index][move.start_square]  # Add piece back to square it moved from
+        self.zobrist_key ^= zobrist.pieces_array[to_square_piece_type][self.colour_to_move_index][move.target_square]  # Remove piece from square it moved to
 
         old_en_passant_file = (self.current_game_state >> 4) & 15
         if old_en_passant_file != 0:
@@ -258,7 +257,7 @@ class Board:
 
         # Ignore ep captures, handled later
         if captured_piece_type != 0 and not is_en_passant:
-            self.zobrist_key ^= zobrist.pieces_array[captured_piece_type, opponent_colour_index, move.target_square]
+            self.zobrist_key ^= zobrist.pieces_array[captured_piece_type][opponent_colour_index][move.target_square]
             self._get_piece_list(captured_piece_type, opponent_colour_index).add_piece_at_square(move.target_square)
 
         # Update king index
@@ -269,7 +268,7 @@ class Board:
                                                                                         move.start_square)
 
         # Put back moved piece
-        self.squares[move.start_square] = moved_piece_type | self.colour_to_move  # If move was a pawn promotion, this will put the promoted piece back instead of the pawn
+        self.squares[move.start_square] = (moved_piece_type | self.colour_to_move)  # If move was a pawn promotion, this will put the promoted piece back instead of the pawn
         self.squares[move.target_square] = captured_piece  # Will be 0 if no piece was captured
 
         if move.is_promotion:
@@ -283,11 +282,11 @@ class Board:
             elif move.move_flag == Move.Flag.PROMOTE_TO_ROOK:
                 self.rooks[self.colour_to_move_index].remove_piece_at_square(move.target_square)
         elif is_en_passant:  # Ep capture: put captured pawn back on right square
-            ep_index = move.target_square + -8 if self.colour_to_move == piece.WHITE else 8
+            ep_index = move.target_square + (-8 if self.colour_to_move == piece.WHITE else 8)
             self.squares[move.target_square] = 0
             self.squares[ep_index] = captured_piece
             self.pawns[opponent_colour_index].add_piece_at_square(ep_index)
-            self.zobrist_key ^= zobrist.pieces_array[piece.PAWN, opponent_colour_index, ep_index]
+            self.zobrist_key ^= zobrist.pieces_array[piece.PAWN][opponent_colour_index][ep_index]
         elif move.move_flag == Move.Flag.CASTLING:  # Castles: move rook back to starting square
             king_side = move.target_square == 6 or move.target_square == 62
             castling_rook_from_index = move.target_square + 1 if king_side else move.target_square - 2
@@ -296,8 +295,8 @@ class Board:
             self.squares[castling_rook_to_index] = 0
             self.squares[castling_rook_from_index] = piece.ROOK | self.colour_to_move
             self.rooks[self.colour_to_move_index].move_piece(castling_rook_to_index, castling_rook_from_index)
-            self.zobrist_key ^= zobrist.pieces_array[piece.ROOK, self.colour_to_move_index, castling_rook_from_index]
-            self.zobrist_key ^= zobrist.pieces_array[piece.ROOK, self.colour_to_move_index, castling_rook_to_index]
+            self.zobrist_key ^= zobrist.pieces_array[piece.ROOK][self.colour_to_move_index][castling_rook_from_index]
+            self.zobrist_key ^= zobrist.pieces_array[piece.ROOK][self.colour_to_move_index][castling_rook_to_index]
 
         self._game_state_history.pop()  # Removes current state from history
         self.current_game_state = self._game_state_history[-1]  # Sets current state to previous state in history
@@ -354,10 +353,10 @@ class Board:
         self.colour_to_move_index = 0 if self.white_to_move else 1
 
         # Create game state
-        white_castle = (1 << 0 if loaded_position.white_castle_king_side else 0) \
-                       | (1 << 1 if loaded_position.white_castle_queen_side else 0)
-        black_castle = (1 << 2 if loaded_position.black_castle_king_side else 0) \
-                       | (1 << 3 if loaded_position.black_castle_queen_side else 0)
+        white_castle = ((1 << 0) if loaded_position.white_castle_king_side else 0) \
+                       | ((1 << 1) if loaded_position.white_castle_queen_side else 0)
+        black_castle = ((1 << 2) if loaded_position.black_castle_king_side else 0) \
+                       | ((1 << 3) if loaded_position.black_castle_queen_side else 0)
 
         ep_state = loaded_position.ep_file << 4
         initial_game_state = (white_castle | black_castle | ep_state)

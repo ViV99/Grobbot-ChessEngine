@@ -58,7 +58,7 @@ def position_from_fen(fen: str) -> LoadedPositionInfo:
     # Half - move clock
     if len(sections) > 4:
         try:
-            loaded_position_info.ply_count = str(sections[4])
+            loaded_position_info.ply_count = int(sections[4])
         except ValueError:
             pass
 
@@ -74,7 +74,7 @@ def fen_from_position(board) -> str:
             current_piece = board.squares[i]
             if current_piece != 0:
                 if num_empty_files != 0:
-                    fen += num_empty_files
+                    fen += str(num_empty_files)
                     num_empty_files = 0
                 is_black = piece.is_colour(current_piece, piece.BLACK)
                 piece_type = piece.piece_type(current_piece)
@@ -97,7 +97,7 @@ def fen_from_position(board) -> str:
                 num_empty_files += 1
 
         if num_empty_files != 0:
-            fen += num_empty_files
+            fen += str(num_empty_files)
 
         if rank != 0:
             fen += '/'
@@ -126,14 +126,14 @@ def fen_from_position(board) -> str:
     else:
         file_name = board_representation.FILE_NAMES[ep_file - 1]
         ep_rank = 6 if board.white_to_move else 3
-        fen += file_name + ep_rank
+        fen += file_name + str(ep_rank)
 
     # 50 move counter
     fen += ' '
-    fen += board.fifty_move_counter
+    fen += str(board.fifty_move_counter)
 
     # Full-move count (should be one at start, and increase after each move by black)
     fen += ' '
-    fen += (board.ply_count // 2) + 1
+    fen += str((board.ply_count // 2) + 1)
 
     return fen

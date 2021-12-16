@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from board import Board
 from move import Move
 import piece
@@ -17,8 +19,8 @@ class MoveGenerator:
                  'opponent_attack_map', 'opponent_pawn_attack_map', '_opponent_sliding_attack_map',  '_gen_quiets',
                  '_board', 'promotions_to_generate'}
 
-    def __init__(self):
-        self.promotions_to_generate = MoveGenerator.PromotionMode.ALL
+    def __init__(self, promotions_to_generate: MoveGenerator.PromotionMode):
+        self.promotions_to_generate = promotions_to_generate
 
     # Generates list of legal moves in current position
     # Quiet moves (non captures) can optionally be excluded

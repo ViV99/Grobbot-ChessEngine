@@ -23,8 +23,8 @@ def evaluate(board: Board) -> int:
     white_material = _count_material(board, Board.WHITE_INDEX)
     black_material = _count_material(board, Board.BLACK_INDEX)
 
-    white_material_no_pawns = white_material - board.pawns[Board.WHITE_INDEX].Count * PAWN_VALUE
-    black_material_no_pawns = black_material - board.pawns[Board.BLACK_INDEX].Count * PAWN_VALUE
+    white_material_no_pawns = white_material - board.pawns[Board.WHITE_INDEX].count * PAWN_VALUE
+    black_material_no_pawns = black_material - board.pawns[Board.BLACK_INDEX].count * PAWN_VALUE
     white_endgame_weight = _endgame_weight(white_material_no_pawns)
     black_endgame_weight = _endgame_weight(black_material_no_pawns)
 

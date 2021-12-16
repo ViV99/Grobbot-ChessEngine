@@ -3,7 +3,7 @@ class PieceList:
 
     # Occupied_squares - indices of squares occupied by given piece type
     # (only elements up to Count are valid, the rest are unused/garbage)
-    # Map - to go from index of a square, to the index in the occupiedSquares array where that square is stored
+    # Map - to go from index of a square, to the index in the occupied_squares array where that square is stored
 
     def __init__(self, max_piece_count=16):
         self.occupied_squares = [0] * max_piece_count
