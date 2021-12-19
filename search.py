@@ -19,7 +19,7 @@ class Search:
 
     __slots__ = {'_best_move_on_iteration', '_best_eval_on_iteration', '_best_move', '_best_eval',
                  '_current_search_depth', '_abort_search', '_board', '_settings', '_move_generator', '_tt',
-                 '_move_ordering', '_invalid_move'}
+                 '_move_ordering', '_invalid_move', '_is_done'}
 
     _best_move_on_iteration: Move
     _best_move: Move
@@ -32,6 +32,10 @@ class Search:
     # int num_transpositions
     # Stopwatch search_stopwatch
 
+    @property
+    def is_done(self):
+        return self._is_done
+
     def __init__(self, board: Board, settings: AISettings):
         self._board = board
         self._settings = settings
@@ -43,8 +47,10 @@ class Search:
         self._best_eval = 0
         self._current_search_depth = 0
         self._abort_search = False
+        self._is_done = False
 
     def start_search(self) -> None:
+        self._is_done = False
         # InitDebugInfo ();
 
         # Initialize search settings
@@ -52,8 +58,6 @@ class Search:
         self._best_move_on_iteration = self._best_move = Move.get_invalid_move()
         self._tt.enabled = self._settings.use_tt
 
-        # Clearing the transposition table before each search seems to help
-        # This makes no sense to me, I presume there is a bug somewhere but haven't been able to track it down yet
         if self._settings.clear_tt_each_move:
             self._tt.clear()
 
@@ -88,6 +92,7 @@ class Search:
             self._search_moves(self._settings.depth, 0, Search._NEG_INF, Search._POS_INF)
             self._best_move = self._best_move_on_iteration
             self._best_eval = self._best_eval_on_iteration
+        self._is_done = True
 
         # onSearchComplete?.Invoke (bestMove)
 

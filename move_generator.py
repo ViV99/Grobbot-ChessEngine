@@ -29,8 +29,15 @@ class MoveGenerator:
         self._gen_quiets = include_quiet_moves
         self._init()
 
+
         self._calculate_attack_data()
         self._generate_king_moves()
+
+        if len(self._moves) == 0:
+            if self.in_check:
+                self._board.is_checkmate = True
+            else:
+                self._board.is_stalemate = True
 
         # Only king moves are valid in a double check position, so can return early
         if self._in_double_check:

@@ -28,9 +28,11 @@ class Board:
     __slots__ = {'squares', 'white_to_move', 'colour_to_move', 'opponent_colour', 'colour_to_move_index',
                  '_game_state_history', 'current_game_state', 'ply_count', 'fifty_move_counter', 'zobrist_key',
                  'repetition_position_history', 'king_square', 'rooks', 'bishops', 'queens', 'knights', 'pawns',
-                 'all_piece_lists'}
+                 'all_piece_lists', 'is_checkmate', 'is_stalemate'}
 
     def __init__(self):
+        self.is_checkmate = False
+        self.is_stalemate = False
         self.white_to_move = True
         self.colour_to_move = 0
         self.colour_to_move_index = 0
@@ -233,7 +235,7 @@ class Board:
         opponent_colour_index = self.colour_to_move_index
         self.colour_to_move = self.opponent_colour  # side who made the move we are undoing
         self.opponent_colour = piece.BLACK if self.opponent_colour == piece.WHITE else piece.WHITE
-        self.colour_to_move_index = 1 - self.colour_to_move_index
+        self.colour_to_move_index = 1 ^ self.colour_to_move_index
         self.white_to_move = not self.white_to_move
 
         original_castle_state = self.current_game_state & 0b1111
